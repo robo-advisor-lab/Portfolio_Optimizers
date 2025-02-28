@@ -29,7 +29,7 @@ Once the tokens are classified, the system moves on to the RL model training pha
 
 - **Model Architecture**: Utilizes Proximal Policy Optimization (PPO) from `Stable-Baselines3` in an OpenAI Gymnasium environment.
 - **Custom Gym Environment**: The `Portfolio` environment simulates real-world trading conditions, including fees, slippage, and liquidity constraints.
-- **Training and Testing Split**: Historical prices are split into a 75% training set and a 25% testing set to evaluate model generalization.
+- **Training and Testing Split**: Historical prices are split into a 66% training set and a 33% testing set to evaluate model generalization.
 - **Parameter Grid Search**: Conducts grid search for optimal portfolio rebalancing frequency using normalized returns as the performance metric.
 - **Sortino Ratio Calculation**: Calculates Sortino ratios to assess risk-adjusted returns, providing a more accurate evaluation for downside volatility.
 
@@ -57,6 +57,7 @@ The system automates quantitative research via:
 
 - **Classifier Scripts**: Re-runs the SQL classifier at the end of each portfolio duration to ensure relevance to the latest market trends.
 - **Trend Detection and Market Adaptation**: Ensures the portfolio dynamically adapts to market shifts, leveraging the most recent price, volume, and trend data.
+- **Portfolio Expected Return**: The Portfolio Expected Return calculation utilizes the Capital Asset Pricing Model (CAPM) to estimate the annualized expected return for the AI-managed portfolio. This calculation compares the portfolio's performance to the market benchmark (DPI - DeFi Pulse Index) and adjusts for risk using the portfolio's beta.  
 
 ## Key Features
 ### Dynamic Token Classification
