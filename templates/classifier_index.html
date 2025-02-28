@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📊 Classifier Results</title>
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+        background-color: #f0f0f0;
+        color: #000;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+      }
+      div.graph-container {
+        background-color: #fff;
+        padding: 20px;
+        border: 2px solid #000;
+        margin: 20px auto; /* Center the chart horizontally */
+        display: flex;
+        justify-content: center; /* Horizontally center the graph */
+        align-items: center; /* Vertically center the graph */
+        min-height: 400px; /* Ensure consistent height */
+        max-width: 800px; /* Limit the container width */
+        width: 90%; /* Allow flexibility for smaller screens */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        border-radius: 10px; /* Rounded corners */
+      }
+      .loading {
+        text-align: center;
+        font-size: 1.5em;
+        color: #333;
+      }
+      footer {
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+      }
+      footer a {
+        color: #fff;
+      }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+      function showLoading() {
+        document.getElementById("loading").style.display = "block";
+      }
+
+      function hideLoading() {
+        document.getElementById("loading").style.display = "none";
+      }
+
+      function updatePage(data) {
+        hideLoading();
+
+        // Render each graph from the data
+        Plotly.newPlot(
+          "graph_1",
+          JSON.parse(data.graph_1).data,
+          JSON.parse(data.graph_1).layout
+        );
+        Plotly.newPlot(
+          "graph_2",
+          JSON.parse(data.graph_2).data,
+          JSON.parse(data.graph_2).layout
+        );
+        Plotly.newPlot(
+          "graph_3",
+          JSON.parse(data.graph_3).data,
+          JSON.parse(data.graph_3).layout
+        );
+        Plotly.newPlot(
+          "graph_4",
+          JSON.parse(data.graph_4).data,
+          JSON.parse(data.graph_4).layout
+        );
+        Plotly.newPlot(
+          "graph_5",
+          JSON.parse(data.graph_5).data,
+          JSON.parse(data.graph_5).layout
+        );
+      }
+
+      function fetchData() {
+        showLoading();
+        fetch("/cached-data")
+          .then((response) => response.json())
+          .then((data) => {
+            updatePage(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+            hideLoading();
+          });
+      }
+
+      window.onload = () => {
+        fetchData();
+      };
+    </script>
+  </head>
+  <body>
+    <h1>📊 Classifier Results</h1>
+    <div class="loading" id="loading">Fetching latest data...</div>
+    <div class="graph-container" id="graph_1"></div>
+    <div class="graph-container" id="graph_2"></div>
+    <div class="graph-container" id="graph_3"></div>
+    <div class="graph-container" id="graph_4"></div>
+    <div class="graph-container" id="graph_5"></div>
+    <footer>
+      <p>
+        Contact:
+        <a href="mailto:general@optimizerfinance.com">general@optimizerfinance.com</a>
+      </p>
+      <p>
+        Github:
+        <a href="https://github.com/robo-advisor-lab">https://github.com/robo-advisor-lab</a>
+      </p>
+      <p>
+        Gitbook:
+        <a href="https://robo-advisor-labs.gitbook.io/optimizer-finance-litepaper">
+          https://robo-advisor-labs.gitbook.io/optimizer-finance-litepaper
+        </a>
+      </p>
+    </footer>
+  </body>
+</html>

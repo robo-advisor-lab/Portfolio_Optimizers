@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚙️ Classifier Optimizer</title>
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+        background-color: #f0f0f0;
+        color: #000;
+        margin: 0;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #333;
+        text-align: center;
+        border-bottom: 2px solid #333;
+      }
+      h1 {
+        margin-top: 0;
+        padding-bottom: 10px;
+      }
+      h2 {
+        padding-top: 20px;
+        padding-bottom: 10px;
+      }
+      div.graph-container {
+        background-color: #fff;
+        padding: 20px;
+        border: 2px solid #000;
+        margin-bottom: 20px;
+        display: flex; /* Enable flexbox */
+        justify-content: center; /* Horizontally center the graph */
+        align-items: center; /* Vertically center the graph */
+        min-height: 400px; /* Optional: Ensure consistent height for the container */
+      }
+      div.graph-container + div.graph-container {
+        margin-top: 20px;
+      }
+      div.graph-container {
+        background-color: #fff;
+        padding: 20px;
+        border: 2px solid #000;
+        margin: 20px auto; /* Center the chart horizontally */
+        display: flex;
+        justify-content: center; /* Horizontally center the graph */
+        align-items: center; /* Vertically center the graph */
+        min-height: 400px; /* Optional: Ensure consistent height for the container */
+        max-width: 800px; /* Limit the container width */
+        width: 90%; /* Allow some flexibility for smaller screens */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for aesthetics */
+        border-radius: 10px; /* Optional: Add rounded corners */
+      }
+      .results-container {
+        margin: 20px auto;
+        padding: 20px;
+        max-width: 600px;
+        background-color: #fff;
+        border: 2px solid #000;
+      }
+      .results-column {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px;
+        background-color: #fff;
+        border: 2px solid #000;
+        margin: 10px;
+      }
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+      .result-item {
+        margin-bottom: 10px;
+      }
+      .loading {
+        display: none;
+        text-align: center;
+        font-size: 1.5em;
+        color: #333;
+      }
+      .version-info {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1em;
+        color: #555;
+      }
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+      function showLoading() {
+        document.getElementById("loading").style.display = "block";
+      }
+
+      function hideLoading() {
+        document.getElementById("loading").style.display = "none";
+      }
+
+      function updatePage(data) {
+        hideLoading();
+
+        // Define the desired order of the keys
+        const keyOrder = [
+          "start date (UTC)",
+          "last run (UTC)",
+          'next rebalance (UTC)',
+          "address",
+          "portfolio balance",
+          "sortino ratio",
+          "Portfolio Expected Return (Annual)",
+          "rebalance frequency (hours)",
+          "chain",
+          "Hours Till Next Portfolio",
+          "version"
+        ];
+
+        // Update the results section
+        const resultsContainer = document.getElementById("results-container");
+        resultsContainer.innerHTML = "";
+
+        const results = data.results;
+        const list = document.createElement("ul");
+
+        keyOrder.forEach((key) => {
+          if (key in results) {
+            const listItem = document.createElement("li");
+
+            if (key === "address") {
+              // Create a clickable link for the address
+              const link = document.createElement("a");
+              link.href = `https://arbiscan.io/address/${results[key]}`;
+              link.textContent = results[key];
+              link.target = "_blank"; // Open in a new tab
+              link.rel = "noopener noreferrer"; // Security best practice
+              listItem.textContent = `${key}: `;
+              listItem.appendChild(link);
+            } else {
+              listItem.textContent = `${key}: ${results[key]}`;
+            }
+
+            list.appendChild(listItem);
+          }
+        });
+
+        resultsContainer.appendChild(list);
+
+        const sqlLink = document.createElement("p");
+        sqlLink.innerHTML = `
+          To view the SQL classifier results for this portfolio, visit 
+          <a href="http://127.0.0.1:5025/" target="_blank" style="color: #007bff; text-decoration: underline;">
+            here
+          </a>.
+        `;
+        resultsContainer.appendChild(sqlLink);
+
+        // Update the graph
+        Plotly.newPlot(
+          "graph_1",
+          JSON.parse(data.graph_1).data,
+          JSON.parse(data.graph_1).layout
+        );
+        Plotly.newPlot(
+          "graph_2",
+          JSON.parse(data.graph_2).data,
+          JSON.parse(data.graph_2).layout
+        );
+        Plotly.newPlot(
+          "graph_3",
+          JSON.parse(data.graph_3).data,
+          JSON.parse(data.graph_3).layout
+        );
+        Plotly.newPlot(
+          "graph_4",
+          JSON.parse(data.graph_4).data,
+          JSON.parse(data.graph_4).layout
+        );
+        Plotly.newPlot(
+          "graph_5",
+          JSON.parse(data.graph_5).data,
+          JSON.parse(data.graph_5).layout
+        );
+        Plotly.newPlot(
+          "graph_6",
+          JSON.parse(data.graph_6).data,
+          JSON.parse(data.graph_6).layout
+        );
+        Plotly.newPlot(
+          "graph_7",
+          JSON.parse(data.graph_7).data,
+          JSON.parse(data.graph_7).layout
+        );
+        Plotly.newPlot(
+          "graph_8",
+          JSON.parse(data.graph_8).data,
+          JSON.parse(data.graph_8).layout
+        );
+        // Optional: Update the footer version info or other dynamic elements
+        document.getElementById("data-version").textContent = results.today;
+      }
+
+      function fetchData() {
+        showLoading();
+        fetch("/run-model") // Adjust endpoint as needed
+          .then((response) => response.json())
+          .then((data) => {
+            updatePage(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+            hideLoading();
+          });
+      }
+
+      window.onload = () => {
+        fetchData();
+      };
+    </script>
+  </head>
+  <body>
+    <h1>⚙️ Classifier Optimizer</h1>
+    <div class="loading" id="loading">Fetching latest data...</div>
+    <div class="graph-container" id="graph_1"></div>
+    <div class="graph-container" id="graph_2"></div>
+    <div class="graph-container" id="graph_3"></div>
+    <div class="graph-container" id="graph_4"></div>
+    <div class="graph-container" id="graph_6"></div>
+    <div class="graph-container" id="graph_5"></div>
+    <!-- <div class="graph-container" id="graph_7"></div>
+    <div class="graph-container" id="graph_8"></div> -->
+    <h2>Results</h2>
+    <div class="results-container" id="results-container"></div>
+    <div class="version-info">
+      <!-- Today's Date: <span id="data-version"></span> -->
+    </div>
+    <footer
+      style="
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #333;
+        color: #fff;
+      "
+    >
+      <p>
+        Contact:
+        <a href="mailto:general@optimizerfinance.com" style="color: #fff"
+          >general@optimizerfinance.com</a
+        >
+      </p>
+      <p>
+        Github:
+        <a href="https://github.com/robo-advisor-lab" style="color: #fff"
+          >https://github.com/robo-advisor-lab</a
+        >
+      </p>
+      <p>
+        Gitbook:
+        <a
+          href="https://robo-advisor-labs.gitbook.io/optimizer-finance-litepaper"
+          style="color: #fff"
+          >https://robo-advisor-labs.gitbook.io/optimizer-finance-litepaper</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

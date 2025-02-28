@@ -1,0 +1,2 @@
+account_address,initial_weth_balance,final_weth_balance,purchases
+0x75baD5ae9f46e8AEBf61e4A7179cEf3A0CeD6766,0.006812512759889358,0.005856876866554356,"{'LDO': 1.0, 'LINK': 0.0, 'WETH': 0.0}"
