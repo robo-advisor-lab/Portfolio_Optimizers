@@ -1,0 +1,2 @@
+symbol,token_address,latest_hour,latest_price,sixty_day_price,sixty_d_return,rolling_7d_avg,rolling_30d_avg,volume,average_order,__row_index,original_latest_hour
+SPA,0x5575552988a3a80504bbaeb1311674fcfd40ad4b,2025-02-06 15:00:00+00:00,0.02801352,0.01525902,0.8358662614,0.02713747296,0.01790045743,3228118.05,126.582936632,0,2025-02-06 15:00:00+00:00
