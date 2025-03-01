@@ -178,8 +178,10 @@ class Portfolio(gym.Env):
         # self.portfolio_composition_log.append((self.portfolio.copy(), self.df.index[self.current_step]))
 
         # Calculate optimized weights and distance penalty using MVO
-        print(f"data_at_mvo:{self.df, self.portfolio, self.target_return}")
-        optimized_weights, returns, sortino_ratio = mvo(self.df.iloc[:self.current_step + 1 ], self.portfolio.iloc[:self.current_step + 1 ], self.target_return)
+        print(f"full_data: {self.df.drop(columns='DXY')}")
+        print(f"data with step condition: {self.df.drop(columns='DXY').iloc[:self.current_step + 1 ]}")
+        print(f"data_at_mvo:{self.df.drop(columns='DXY'), self.portfolio, self.target_return}")
+        optimized_weights, returns, sortino_ratio = mvo(self.df.drop(columns='DXY').iloc[:self.current_step + 1 ], self.portfolio.iloc[:self.current_step + 1 ], self.target_return)
         print(
             f'portfolio: {self.portfolio}, optimized_portfolio: {optimized_weights}, sortino_ratio: {sortino_ratio}'
         )

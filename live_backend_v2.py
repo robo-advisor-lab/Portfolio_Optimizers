@@ -715,7 +715,18 @@ def update_historical_data(live_comp):
     historical_data = cache.get(f'{model_name} historical_data', pd.DataFrame())
     historical_data = pd.concat([historical_data, new_data]).reset_index(drop=True)
     historical_data.drop_duplicates(subset='date', keep='last', inplace=True)
+
+    historical_data = historical_data.set_index('date')
+    historical_data.index = pd.to_datetime(historical_data.index)
+
+    historical_data = historical_data[~historical_data.index.duplicated(keep='last')]
+
+    historical_data = historical_data.resample('H').ffill()
+
+    historical_data.reset_index(inplace=True)
+
     cache.set(f'{model_name} historical_data', historical_data)
+    historical_data.to_csv(r'E:\Projects\portfolio_optimizers\classifier_optimizer\data\live_model_comp.csv')
 
 def update_portfolio_data(values):
     print(f'values: {values}')
@@ -769,7 +780,14 @@ def update_price_data(values):
 
     print(f'model_name: {model_name}')
 
-    # breakpoint()
+    oracle_prices = oracle_prices.set_index('hour')
+    oracle_prices.index = pd.to_datetime(oracle_prices.index)
+
+    oracle_prices = oracle_prices[~oracle_prices.index.duplicated(keep='last')]
+
+    oracle_prices = oracle_prices.resample('H').ffill()
+
+    oracle_prices.reset_index(inplace=True)
     
     # Cache the updated oracle_prices
     cache.set(f'{model_name} oracle_prices', oracle_prices)
@@ -1121,12 +1139,12 @@ def create_app():
         data_version = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H-00-00')
         data_version_comp = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:00:00') 
 
-        if cached_data and 'results' in cached_data and cached_data['results'].get('last run (UTC)') is not None:
-            if cached_data['results']['last run (UTC)'] == data_version_comp:
-                print(f"cached_data['results']['last run (UTC)']: {cached_data['results']['last run (UTC)']}")
-                print(f"data_version_comp: {data_version_comp}")
-                print("Using cached data")
-                return jsonify(cached_data)
+        # if cached_data and 'results' in cached_data and cached_data['results'].get('last run (UTC)') is not None:
+        #     if cached_data['results']['last run (UTC)'] == data_version_comp:
+        #         print(f"cached_data['results']['last run (UTC)']: {cached_data['results']['last run (UTC)']}")
+        #         print(f"data_version_comp: {data_version_comp}")
+        #         print("Using cached data")
+        #         return jsonify(cached_data)
 
         end_date = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:00:00') 
 
@@ -1611,6 +1629,8 @@ if __name__ == "__main__":
     logger.info(f"Running model: {model_name}")
     logger.info(f"Backtest period: {backtest_period} hours")
     logger.info(f"Historical data: {historical_data.head() if not historical_data.empty else 'No data available'}")
+
+    historical_data.to_csv(r'E:\Projects\portfolio_optimizers\classifier_optimizer\data\live_model_comp.csv')
 
     # Start the Flask app and scheduler
     app = create_app()

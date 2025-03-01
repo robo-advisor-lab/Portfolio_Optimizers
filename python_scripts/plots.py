@@ -225,7 +225,7 @@ def model_visualizations(nom_comp, plot_historical_data,historical_port_values,s
         subtitle=f'{formatted_today_utc}',
         dt_index=False,
         add_the_date=False,
-        show=True,
+        show=False,
         save=False
     )
 

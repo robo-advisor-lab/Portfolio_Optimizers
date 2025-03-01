@@ -624,22 +624,64 @@ def mvo(data, portfolio, risk_free_rate):
         excess_returns.fillna(0, inplace=True)
         print(f"\n📊 Excess returns:\n{excess_returns}")
 
-        def sortino_ratio_objective(weights):
-            portfolio_returns = np.dot(filtered_returns, weights)
-            excess_portfolio_returns = portfolio_returns - hourly_risk_free_rate
+        # Calculate downside deviation
+        downside_returns = np.where(excess_returns < 0, excess_returns**2, 0)
+        hourly_downside_deviation = np.sqrt(np.mean(downside_returns))
 
+        # Adjust annual factor for hourly data
+        active_hours = returns.notna().sum()
+        annual_factor = 8760 / active_hours if active_hours != 0 else 0
+
+        # Compounding return adjusted for hourly data
+        compounding_return = np.exp(np.log(1 + excess_returns).sum() * annual_factor / active_hours) - 1
+
+        # Annualized downside deviation adjusted for hourly data
+        annual_downside_deviation = max(hourly_downside_deviation * np.sqrt(8760), 1e-6)
+
+        # Calculate Sortino ratio
+        sortino_ratio = compounding_return / annual_downside_deviation if annual_downside_deviation != 0 else 0
+        sortino_ratio = min(sortino_ratio, 100)
+
+        def sortino_ratio_objective(weights):
+            # print("\n⚡ Debugging Inside Objective Function ⚡")
+            # print("weights.shape:", weights.shape)
+            # print("filtered_returns.shape:", filtered_returns.shape)
+
+            portfolio_returns = np.dot(filtered_returns, weights)
+
+            # print("portfolio_returns.shape:", portfolio_returns.shape)  # Should match filtered_returns index length
+
+            excess_portfolio_returns = portfolio_returns - hourly_risk_free_rate
+            excess_portfolio_returns = np.clip(excess_portfolio_returns, -1, 1)
             downside_portfolio_returns = np.where(excess_portfolio_returns < 0, excess_portfolio_returns**2, 0)
+            
             portfolio_downside_deviation = np.sqrt(np.mean(downside_portfolio_returns))
             portfolio_annual_downside_deviation = max(portfolio_downside_deviation * np.sqrt(8760), 1e-6)
-            annual_portfolio_return = (1 + excess_portfolio_returns).prod() ** (8760 / len(excess_portfolio_returns)) - 1
+
+            # annual_portfolio_return = (1 + excess_portfolio_returns).prod() ** (8760 / len(excess_portfolio_returns)) - 1
+
+            annual_portfolio_return = np.exp(np.mean(np.log1p(excess_portfolio_returns))) ** (8760 / len(excess_portfolio_returns)) - 1
+
+            # print("annual_portfolio_return:", annual_portfolio_return)
+            # print("portfolio_annual_downside_deviation:", portfolio_annual_downside_deviation)
 
             if np.isnan(annual_portfolio_return) or np.isnan(portfolio_annual_downside_deviation):
                 return np.inf  # Return a high value if NaN is encountered
 
             return -annual_portfolio_return / portfolio_annual_downside_deviation
 
+        print("\n🔍 Debugging Data Shapes Before Optimization 🔍")
+        print("filtered_returns.shape:", filtered_returns.shape)  # Number of rows × columns
+        print("filtered_returns.columns:", filtered_returns.columns.tolist())  # Check the assets included
+
         num_assets = len(portfolio.columns)
-        bounds = Bounds([0.0] * num_assets, [1.0] * num_assets)  # Weights between 0 and 1
+        print("Expected num_assets from portfolio:", num_assets)
+
+        epsilon = 1e-8  # Small buffer to avoid boundary issues
+        bounds = Bounds([epsilon] * num_assets, [1.0 - epsilon] * num_assets)
+        # Weights between 0 and 1
+
+        print(f'fun_constraint: {np.sum(np.ones(num_assets) / num_assets) - 1}')
 
         # Constraint: Sum of weights should equal 1
         weight_constraint = {
@@ -650,9 +692,16 @@ def mvo(data, portfolio, risk_free_rate):
         # Initial weights
         initial_weights = np.ones(num_assets) / num_assets
         initial_weights /= np.sum(initial_weights)
+        print("Sum of initial weights:", np.sum(initial_weights))  # Should be 1
 
         solvers = ["SLSQP"]
         result = None
+
+        print("\n🔍 Debugging Before Optimizer Call 🔍")
+        print("weights.shape (initial):", initial_weights.shape)
+        print("weights (initial):", initial_weights)
+
+        # import pdb; pdb.set_trace()
 
         for solver in solvers:
             try:
@@ -679,10 +728,10 @@ def mvo(data, portfolio, risk_free_rate):
             optimized_weights = result.x
             print(f"\n✅ Optimization successful: {optimized_weights}")
             print(f"Sum of optimized weights: {np.sum(optimized_weights)}")  # Check if sum is 1
-            return optimized_weights, returns, 0  # Sortino ratio is not recalculated here
+            return optimized_weights, returns, sortino_ratio  # Sortino ratio is not recalculated here
         else:
             print("\n⚠️ Optimization failed: Using last known weights")
-            return portfolio.iloc[-1].values, returns, 0
+            return portfolio.iloc[-1].values, returns, sortino_ratio
 
     except Exception as e:
         print(f"\n❌ Error during MVO computation: {e}")

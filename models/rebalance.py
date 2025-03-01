@@ -179,8 +179,8 @@ class Portfolio(gym.Env):
         print(f'comp_history: {comp_history}')
 
         # Calculate optimized weights and distance penalty using MVO
-        print(f"data_at_mvo:{self.df.iloc[:self.current_step + 1], comp_history, self.target_return}")
-        optimized_weights, returns, sortino_ratio = mvo(self.df.iloc[:self.current_step + 1][self.price_columns], comp_history, self.target_return)
+        print(f"data_at_mvo:{self.df.drop(columns='DXY').iloc[:self.current_step + 1], comp_history, self.target_return}")
+        optimized_weights, returns, sortino_ratio = mvo(self.df.drop(columns='DXY').iloc[:self.current_step + 1][self.price_columns], comp_history, self.target_return)
         print(
             f'portfolio: {self.portfolio}, optimized_portfolio: {optimized_weights}, sortino_ratio: {sortino_ratio}'
         )
