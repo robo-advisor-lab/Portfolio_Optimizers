@@ -18,7 +18,7 @@ The system utilizes a powerful SQL query engine integrated with the Flipside API
 - **Price Trends**: Filters tokens where the 7-day rolling average is above the 30-day rolling average, indicating a bullish trend.
 - **Volume Analysis**: Includes only tokens with above-average trading volume compared to other tokens on Uniswap V3.
 - **Meme Coin Filter**: Excludes high-volatility meme coins unless explicitly included.
-- **Data Requirement**: Ensures that each token has at least 6 months of historical data to provide enough context for model training.
+- **Data Requirement**: Ensures that each token has at least 1 year of historical data to provide enough context for model training.
 ### Advanced Filtering:
 - **Trending Tokens**: Optionally includes tokens trending upwards by comparing 7d and 30d rolling averages.
 - **Volume Thresholding**: Filters tokens based on a volume threshold calculated relative to the average market volume.
@@ -75,7 +75,7 @@ The system automates quantitative research via:
 
 ### On-Chain Integration
 
-- Runs on-chain for the backtest duration using Web3.py and Uniswap SDK.
+- Runs on-chain for the backtest duration using Web3.py and Uniswap-Python.
 - Trades executed using Uniswap V3 pools on Arbitrum.
 - Portfolio dynamically adjusts to market conditions.
 
