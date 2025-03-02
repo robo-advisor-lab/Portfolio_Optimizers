@@ -31,7 +31,8 @@ Once the tokens are classified, the system moves on to the RL model training pha
 - **Custom Gym Environment**: The `Portfolio` environment simulates real-world trading conditions, including fees, slippage, and liquidity constraints.
 - **Training and Testing Split**: Historical prices are split into a 66% training set and a 33% testing set to evaluate model generalization.
 - **Parameter Grid Search**: Conducts grid search for optimal portfolio rebalancing frequency using normalized returns as the performance metric.
-- **Sortino Ratio Calculation**: Calculates Sortino ratios to assess risk-adjusted returns, providing a more accurate evaluation for downside volatility.
+- **Sortino Ratio Calculation**: Calculates Sortino ratios to assess risk-adjusted returns, providing a more accurate evaluation for downside volatility. A Sortino ratio objective loss function is calculated at each timestep which compares the current portfolio composition with the Sortino ratio optimized target composition.  The RL agent is trained to make actions, i.e. trades, which would decrease the distance between the current and target compisition, making those trades periodically..
+ 
 
 ### Rebalancing Frequency Optimization:
 
